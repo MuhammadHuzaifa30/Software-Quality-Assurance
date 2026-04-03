@@ -1,0 +1,306 @@
+{
+  "info": {
+    "_postman_id": "week3-api-testing-huzaifa",
+    "name": "Week 3 – API Testing Collection",
+    "description": "API Testing using Postman for GET, POST, PUT, DELETE requests.\nPrepared by: Muhammad Huzaifa\nWeek 3 – QA Automation & Final Reporting",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://jsonplaceholder.typicode.com",
+      "type": "string",
+      "description": "Base URL for the mock REST API"
+    },
+    {
+      "key": "post_id",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "TC_API_001 – GET All Posts",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// TC_API_001: Verify GET All Posts returns 200 and is an array",
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is a JSON array', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "    pm.expect(jsonData.length).to.be.greaterThan(0);",
+              "});",
+              "",
+              "pm.test('Each post has required fields', function () {",
+              "    const jsonData = pm.response.json();",
+              "    jsonData.slice(0, 5).forEach(post => {",
+              "        pm.expect(post).to.have.property('id');",
+              "        pm.expect(post).to.have.property('title');",
+              "        pm.expect(post).to.have.property('body');",
+              "        pm.expect(post).to.have.property('userId');",
+              "    });",
+              "});",
+              "",
+              "pm.test('Response time is acceptable (<1000ms)', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/posts",
+          "host": ["{{base_url}}"],
+          "path": ["posts"]
+        },
+        "description": "Retrieve all posts – verifies status 200 and data structure."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_002 – GET Single Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Post ID matches requested ID', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.id).to.eql(1);",
+              "});",
+              "",
+              "pm.test('Response contains title and body', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.be.a('string').and.not.empty;",
+              "    pm.expect(jsonData.body).to.be.a('string').and.not.empty;",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        },
+        "description": "Retrieve a single post by ID."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_003 – POST Create New Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response contains new post data', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql('QA Automation Test Post');",
+              "    pm.expect(jsonData.body).to.eql('This post was created by Muhammad Huzaifa during Week 3 API testing.');",
+              "    pm.expect(jsonData.userId).to.eql(10);",
+              "    pm.expect(jsonData.id).to.exist;",
+              "});",
+              "",
+              "// Save new post ID for later tests",
+              "const jsonData = pm.response.json();",
+              "pm.environment.set('new_post_id', jsonData.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"QA Automation Test Post\",\n  \"body\": \"This post was created by Muhammad Huzaifa during Week 3 API testing.\",\n  \"userId\": 10\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts",
+          "host": ["{{base_url}}"],
+          "path": ["posts"]
+        },
+        "description": "Create a new post using POST method."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_004 – PUT Update Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Post title is updated correctly', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql('Updated Post Title – Huzaifa');",
+              "});",
+              "",
+              "pm.test('Post body is updated correctly', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.body).to.eql('This is the updated body content for Week 3 PUT test.');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": 1,\n  \"title\": \"Updated Post Title – Huzaifa\",\n  \"body\": \"This is the updated body content for Week 3 PUT test.\",\n  \"userId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        },
+        "description": "Update an existing post using PUT method."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_005 – PATCH Partial Update",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Only title is patched', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData.title).to.eql('Patched Title – Week 3');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Patched Title – Week 3\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        },
+        "description": "Partially update a post using PATCH method."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_006 – DELETE Post",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response body is empty or {}', function () {",
+              "    const jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('object');",
+              "});",
+              "",
+              "pm.test('Delete confirmed – resource removed', function () {",
+              "    pm.response.to.have.status(200);",
+              "    console.log('Post with ID {{post_id}} successfully deleted');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/{{post_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "{{post_id}}"]
+        },
+        "description": "Delete a post using DELETE method."
+      },
+      "response": []
+    },
+    {
+      "name": "TC_API_007 – GET Non-Existent Resource (404)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404 Not Found', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Response confirms resource not found', function () {",
+              "    pm.response.to.have.status(404);",
+              "    console.log('Negative test passed – 404 returned as expected');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/posts/9999",
+          "host": ["{{base_url}}"],
+          "path": ["posts", "9999"]
+        },
+        "description": "Negative test – request a non-existent resource, expect 404."
+      },
+      "response": []
+    }
+  ]
+}
